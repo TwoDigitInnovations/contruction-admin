@@ -16,14 +16,16 @@
   }
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
-
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap");
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(to bottom,
+  background: linear-gradient(
+      to bottom,
       transparent,
-      rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
   font-family: "Nunito Sans", sans-serif !important;
 }
 
@@ -32,13 +34,19 @@ body {
     text-wrap: balance;
   }
 
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   @variants responsive {
-
-
     .no-scrollbar::-webkit-scrollbar {
       display: none;
     }
-
 
     .no-scrollbar {
       -ms-overflow-style: none;
@@ -47,5 +55,5 @@ body {
 }
 
 .boxShadow {
-  box-shadow: 6px 6px 54px 0px #0000000D;
+  box-shadow: 6px 6px 54px 0px #0000000d;
 }

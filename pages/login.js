@@ -1,17 +1,15 @@
-import { Inter } from "next/font/google";
-const inter = Inter({ subsets: ["latin"] });
-import { MdArrowForward, MdEmail, MdPassword } from "react-icons/md";
-import { useContext, useState } from "react";
-import { Api } from "@/services/service";
+import { useState, useContext } from "react";
 import { useRouter } from "next/router";
-import { userContext } from "./_app";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ShoppingCart } from "lucide-react";
 import Swal from "sweetalert2";
+import { userContext } from "./_app";
+import { Api } from "@/services/service";
 
 export default function Login(props) {
   const router = useRouter();
   const [showPass, setShowPass] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [otp, setotp] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [userDetail, setUserDetail] = useState({
     username: "",
     password: "",
@@ -19,130 +17,162 @@ export default function Login(props) {
   const [user, setUser] = useContext(userContext);
 
   const submit = async () => {
-    console.log(userDetail);
+    setSubmitted(true);
     if (userDetail.username && userDetail.password) {
       props.loader(true);
-      Api("post", "login", { ...userDetail }, router).then(
-        (res) => {
-          props.loader(false)
-          console.log("res================>", res);
-          if (res?.status) {
-            if (res.data.type === "ADMIN" || res.data.type === "SELLER") {
-              console.log("res================>", res);
-              if (res.data.type === "SELLER" && (!res.data.store || (res.data.store && res.data.store.verification !== "Verified"))) {
-                Swal.fire({
-                  text: "Your account hasn't been verified. Please wait by 2-7 working days. Thanks.",
-                  icon: "warning",
-                  showCancelButton: false,
-                  confirmButtonText: "OK"
-                })
-                return
-              }
-              localStorage.setItem("userDetail", JSON.stringify(res.data));
-              setUser(res.data);
-              setUserDetail({
-                username: "",
-                password: "",
+      setLoading(true);
+
+      try {
+        const res = await Api("post", "login", { ...userDetail }, router);
+        props.loader(false);
+        setLoading(false);
+
+        if (res?.status) {
+          if (res.data.type === "ADMIN" || res.data.type === "SELLER") {
+            if (
+              res.data.type === "SELLER" &&
+              (!res.data.store ||
+                (res.data.store && res.data.store.verification !== "Verified"))
+            ) {
+              Swal.fire({
+                text: "Your account hasn't been verified. Please wait 2–7 working days. Thanks.",
+                icon: "warning",
+                confirmButtonText: "OK",
               });
-              localStorage.setItem("token", res.data.token);
-              props.toaster({ type: "success", message: "Login Successful" });
-              router.push("/");
-            } else {
-              props.toaster({ type: "error", message: "You are not an Admin" });
+              return;
             }
+
+            localStorage.setItem("userDetail", JSON.stringify(res.data));
+            localStorage.setItem("token", res.data.token);
+            setUser(res.data);
+            setUserDetail({ username: "", password: "" });
+            props.toaster({ type: "success", message: "Login Successful" });
+            router.push("/");
+          } else {
+            props.toaster({ type: "error", message: "You are not an Admin" });
           }
-        },
-        (err) => {
-          props.loader(false);
-          console.log(err);
-          props.toaster({ type: "error", message: err?.message });
         }
-      );
+      } catch (err) {
+        props.loader(false);
+        setLoading(false);
+        props.toaster({ type: "error", message: err?.message });
+      }
     } else {
       props.toaster({ type: "error", message: "Missing credentials" });
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-custom-lightGray justify-center items-center ">
-      <div className="border-2 rounded-3xl border-custom-red bg-custom-creame md:p-10 p-5 sm:w-1.5 md:w-1/3  ">
-        <p className="text-black text-center md:text-4xl text-2xl font-semibold mb-10">
-          Welcome
-        </p>
-        <div className="flex bg-white py-2 mt-4 rounded-md border  border-custom-gray md:h-14 sm:h-10 w-64 md:min-w-full ">
-          <div className="flex md:mx-4 mx-2.5 justify-center md:h-10 sm:h-8 items-center ">
-            <div className="md:w-5 md:h-5 w-4 h-4 relative">
-              <MdEmail className="text-xl text-custom-gray" />
+    <div className="min-h-screen bg-gradient-to-br from-yellow-500 via-yellow-600 to-yellow-700 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* background pattern */}
+      <div className="absolute inset-0 bg-black/10">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)`,
+            backgroundSize: "30px 30px",
+          }}
+        ></div>
+      </div>
+
+      <div className="relative w-full max-w-md">
+        <div className="bg-white/90 backdrop-blur-md shadow-2xl rounded-3xl p-8 transition-all duration-300 hover:scale-[1.02]">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <div className="bg-yellow-600 py-3 rounded-3xl flex items-center justify-center mb-4 space-x-2">
+              <img src="/Logo.png" className="h-16" />
             </div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome Back!</h1>
+            <p className="text-gray-600 text-sm">Sign in to continue</p>
           </div>
-          <input
-            placeholder="Username"
-            className="bg-white outline-none pl-2 text-black text-xs md:text-base border-l-2 border-custom-gray md:h-10 h-5"
-            value={userDetail.username}
-            autoComplete="false"
-            onChange={(text) => {
-              setUserDetail({ ...userDetail, username: text.target.value });
-            }}
-          />
-        </div>
-        {submitted && userDetail.email === "" && (
-          <p className="text-red-700 mt-1">Username is required</p>
-        )}
-        {/* {submitted &&
-          !checkEmail(userDetail.email) &&
-          userDetail.email !== "" && (
-            <p className="text-red-700 mt-1">Email is invalid</p>
-          )} */}
-        <div className="flex bg-white py-2 mt-4 rounded-md  border  border-custom-gray md:h-14 sm:h-10 min-w-full relative items-center w-64 md:min-w-full ">
-          <div className="flex md:mx-4 mx-2.5  justify-center md:h-10 sm:h-8 items-center ">
-            <div className="md:w-5 md:h-5 w-4 h-4 relative">
-              <MdPassword className="text-xl text-custom-gray" />
-            </div>
-          </div>
-          <input
-            placeholder="Password"
-            // type={showPass ? "text" : "password"}
-            type="text"
-            className="bg-white outline-none pl-2 text-black text-xs md:text-base border-l-2 border-custom-gray md:h-10 h-5"
-            value={userDetail.password}
-            autoComplete="new-password"
-            onChange={(text) => {
-              setUserDetail({ ...userDetail, password: text.target.value });
-            }}
-          />
-          {/* <div
-            className="absolute right-3 "
-            onClick={() => setShowPass(!showPass)}
-          >
-            <div className="md:w-5 md:h-3.5 w-3.5 h-2.5 relative">
-              {showPass ? (
-                <AiFillEye className="text-xl text-custom-orange" />
-              ) : (
-                <AiFillEyeInvisible className="text-xl text-custom-orange" />
+
+          {/* Form */}
+          <div className="space-y-6">
+            {/* Username */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">Username</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Enter your username"
+                  className={`w-full pl-10 pr-4 py-3 border rounded-xl text-neutral-700 focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none transition-all duration-200 ${
+                    submitted && !userDetail.username
+                      ? "border-red-500 bg-red-50"
+                      : "border-gray-300"
+                  }`}
+                  value={userDetail.username}
+                  onChange={(e) =>
+                    setUserDetail({ ...userDetail, username: e.target.value })
+                  }
+                />
+              </div>
+              {submitted && !userDetail.username && (
+                <p className="text-red-500 text-xs font-medium">Username is required</p>
               )}
             </div>
-          </div> */}
-        </div>
-        {submitted && userDetail.password === "" && (
-          <p className="text-red-700 mt-1">Password is required</p>
-        )}
 
+            {/* Password */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                <input
+                  type={showPass ? "text" : "password"}
+                  placeholder="Enter your password"
+                  className={`w-full pl-10 pr-12 py-3 border rounded-xl text-neutral-700 focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none transition-all duration-200 ${
+                    submitted && !userDetail.password
+                      ? "border-red-500 bg-red-50"
+                      : "border-gray-300"
+                  }`}
+                  value={userDetail.password}
+                  onChange={(e) =>
+                    setUserDetail({ ...userDetail, password: e.target.value })
+                  }
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowPass(!showPass)}
+                >
+                  {showPass ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              {submitted && !userDetail.password && (
+                <p className="text-red-500 text-xs font-medium">Password is required</p>
+              )}
+            </div>
 
-        <div className=" mt-10 grid grid-cols-2 gap-8">
-          <div className="items-start">
-            <p className="text-black text-left md:text-4xl text-2xl font-semibold ">
-              Sign in
+            {/* Submit Button */}
+            <button
+              type="button"
+              onClick={submit}
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-semibold py-3 rounded-xl transition-all duration-200 transform hover:scale-[1.02] focus:ring-4 focus:ring-yellow-300 disabled:opacity-70 shadow-lg"
+            >
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin h-5 w-5 border-b-2 border-white rounded-full mr-2"></div>
+                  Signing In...
+                </div>
+              ) : (
+                <div className="flex items-center justify-center">
+                  Sign In <ArrowRight className="ml-2 h-5 w-5" />
+                </div>
+              )}
+            </button>
+          </div>
+
+          <div className="mt-8 text-center">
+            <p className="text-xs text-gray-500">
+              © 2025 BOADMAS. All rights reserved.
             </p>
           </div>
-          <div className="flex justify-end"
-
-            onClick={submit}
-          >
-            <div className="md:w-10 md:h-10 w-8 h-8 relative bg-custom-gray rounded-full flex justify-center items-center">
-              <MdArrowForward className="text-white w-5 h-5" />
-            </div>
-          </div>
         </div>
+
+        {/* Background glow effects */}
+        <div className="absolute -top-14 -left-10 w-32 h-32 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full blur-md opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-8 -right-10 w-32 h-32 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full blur-md opacity-20 animate-pulse"></div>
       </div>
     </div>
   );
