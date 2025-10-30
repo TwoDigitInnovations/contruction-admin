@@ -1,33 +1,31 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { MdOutlineFileUpload } from "react-icons/md";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
-import { IoCloseCircleOutline } from "react-icons/io5";
-import { Api, ApiFormData } from '@/services/service';
-import isAuth from '@/components/isAuth';
+import { Api } from "@/services/service";
+import isAuth from "@/components/isAuth";
+import CarosalSettings from "@/components/CarosalSettings";
 
 function Settings(props) {
     const router = useRouter();
-    const [submitted, setSubmitted] = useState(false);
+    const [setting, setSetting] = useState({ TaxRate: "", RatePerKM: "" });
+    const [isEdit, setIsEdit] = useState(false);
     const f = useRef(null);
-    const [carouselImg, setCarouselImg] = useState([]);
-    const [singleImg, setSingleImg] = useState('');
-    const [settingsId, setSettingsId] = useState('');
 
     useEffect(() => {
-        getsetting();
+        getSettings();
     }, []);
 
-    const handleImageChange = (event) => {
-        const file = event.target.files[0];
-        const data = new FormData();
-        data.append('file', file);
+    // 🔹 Fetch settings from backend
+    const getSettings = async () => {
         props.loader(true);
-        ApiFormData("post", "/user/fileupload", data, router)
+        Api("get", "getSetting", "", router)
             .then((res) => {
                 props.loader(false);
-                if (res.status) {
-                    setSingleImg(res.data.file);
-                    props.toaster({ type: "success", message: res.data.message });
+                if (res?.data) {
+                    setSetting({
+                        TaxRate: res.data?.TaxRate || "",
+                        RatePerKM: res.data?.RatePerKM || "",
+                    });
+                    setIsEdit(true); // if data exists, editing mode
                 }
             })
             .catch((err) => {
@@ -36,133 +34,99 @@ function Settings(props) {
             });
     };
 
-    const submit = (e) => {
+    // 🔹 Save or update settings
+    const saveSettings = (e) => {
         e.preventDefault();
-        props.loader(true);
-        let data = { carousel: carouselImg };
-        if (settingsId) data.id = settingsId;
+        if (setting.TaxRate === "" || setting.RatePerKM === "") {
+            return props.toaster({
+                type: "error",
+                message: "Please fill all fields",
+            });
+        }
 
-        Api("post", `${settingsId ? `updatesetting` : `createsetting`}`, data, router)
+        const data = {
+            TaxRate: Number(setting.TaxRate),
+            RatePerKM: Number(setting.RatePerKM),
+        };
+
+        props.loader(true);
+        Api("post", "saveSetting", data, router)
             .then((res) => {
                 props.loader(false);
-                if (res?.success) {
-                    setSubmitted(false);
-                    props.toaster({ type: "success", message: res?.message });
+                if (res?.status) {
+                    props.toaster({
+                        type: "success",
+                        message: res?.message || "Settings saved successfully",
+                    });
+                    setIsEdit(true);
+                    getSettings();
                 } else {
-                    props.toaster({ type: "error", message: res?.data?.message });
+                    props.toaster({
+                        type: "error",
+                        message: res?.message || "Something went wrong",
+                    });
                 }
             })
             .catch((err) => {
                 props.loader(false);
                 props.toaster({ type: "error", message: err?.message });
             });
-    };
-
-    const getsetting = async () => {
-        props.loader(true);
-        Api("get", 'getsetting', '', router)
-            .then((res) => {
-                props.loader(false);
-                if (res?.success && res?.setting?.length > 0) {
-                    setSettingsId(res?.setting[0]._id);
-                    setCarouselImg(res?.setting[0].carousel);
-                }
-            })
-            .catch((err) => {
-                props.loader(false);
-                props.toaster({ type: "error", message: err?.message });
-            });
-    };
-
-    const closeIcon = (item) => {
-        const updated = carouselImg.filter((f) => f !== item);
-        setCarouselImg(updated);
     };
 
     return (
         <section className="w-full h-full bg-gray-50 py-8 px-6 md:px-6">
-            <p className="text-gray-800 font-bold text-3xl md:text-[32px] pb-6">
-                Website Settings
-            </p>
+            <div className="overflow-y-scroll h-screen scrollbar-hide pb-56">
+                <p className="text-gray-800 font-bold text-3xl md:text-[32px] pb-6">
+                    Website Settings
+                </p>
 
-            <div className="bg-white shadow-xl shadow-gray-200 rounded-2xl p-2 md:p-4 transition-all duration-300 hover:shadow-2xl">
-                <form className="space-y-6" onSubmit={submit}>
-                    {/* Upload Section */}
-                    <div className="relative">
-                        <label className="block text-gray-700 font-semibold mb-2 text-lg">
-                            Carousel Image URL
+                {/* <CarosalSettings loader={props.loader} toaster={props.toaster} /> */}
+
+                <form
+                    ref={f}
+                    onSubmit={saveSettings}
+                    className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm mt-8"
+                >
+                    <div className="mb-5">
+                        <label className="text-gray-600 font-semibold block pb-2">
+                            Tax Rate (%)
                         </label>
-                        <div className="flex items-center border border-gray-300 rounded-xl bg-gray-50 focus-within:ring-2 focus-within:ring-yellow-500 transition-all">
-                            <input
-                                className="flex-1 bg-transparent py-2.5 px-4 text-sm text-gray-800 outline-none"
-                                type="text"
-                                placeholder="Paste image URL or upload"
-                                value={singleImg}
-                                onChange={(e) => setSingleImg(e.target.value)}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => f.current.click()}
-                                className="p-2 text-yellow-600 hover:text-yellow-700 transition-all"
-                            >
-                                <MdOutlineFileUpload className="text-2xl" />
-                            </button>
-                            <input
-                                type="file"
-                                ref={f}
-                                className="hidden"
-                                onChange={handleImageChange}
-                            />
-                        </div>
+                        <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="Enter tax rate (e.g. 18)"
+                            value={setting.TaxRate}
+                            onChange={(e) =>
+                                setSetting({ ...setting, TaxRate: e.target.value })
+                            }
+                            className="bg-gray-50 border border-gray-300 outline-none h-[45px] w-full rounded-lg px-4 text-sm font-medium text-black focus:ring-2 focus:ring-yellow-600"
+                        />
                     </div>
 
-                    {/* Add Image Button */}
-                    <div className="flex justify-end">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                if (singleImg === "") {
-                                    props.toaster({ type: "error", message: "Carousel Image is required" });
-                                    return;
-                                }
-                                setCarouselImg([...carouselImg, singleImg]);
-                                setSingleImg('');
-                            }}
-                            className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-transform transform hover:scale-[1.03]"
-                        >
-                            Add Image
-                        </button>
+                    <div className="mb-5">
+                        <label className="text-gray-600 font-semibold block pb-2">
+                            Rate per KM (₹)
+                        </label>
+                        <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="Enter rate per KM"
+                            value={setting.RatePerKM}
+                            onChange={(e) =>
+                                setSetting({ ...setting, RatePerKM: e.target.value })
+                            }
+                            className="bg-gray-50 border border-gray-300 outline-none h-[45px] w-full rounded-lg px-4 text-sm font-medium text-black focus:ring-2 focus:ring-yellow-600"
+                        />
                     </div>
 
-                    {/* Carousel Preview */}
-                    <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-                        {carouselImg?.map((item, i) => (
-                            <div
-                                key={i}
-                                className="relative group bg-gray-100 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all"
-                            >
-                                <img
-                                    src={item}
-                                    alt={`carousel-${i}`}
-                                    className="w-full h-28 object-cover transform group-hover:scale-105 transition-transform duration-300"
-                                />
-                                <IoCloseCircleOutline
-                                    onClick={() => closeIcon(item)}
-                                    className="absolute top-2 left-2 text-red-600 text-2xl cursor-pointer bg-white rounded-full shadow-md opacity-80 hover:opacity-100 transition-all"
-                                />
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Submit Button */}
-                    <div className="flex justify-end mt-8">
-                        <button
-                            type="submit"
-                            className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-2 rounded-lg font-semibold shadow-md hover:shadow-lg transition-transform transform hover:scale-[1.05]"
-                        >
-                            Save Changes
-                        </button>
-                    </div>
+                    <button
+                        type="submit"
+                        className="w-full py-3 bg-yellow-600 hover:bg-yellow-700 rounded-lg text-white font-semibold shadow-md  transition-all"
+                    >
+                        {isEdit ? "Update Settings" : "Save Settings"}
+                    </button>
                 </form>
             </div>
         </section>

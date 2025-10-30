@@ -30,14 +30,9 @@ export default function App({ Component, pageProps }) {
 
   const getUserDetail = () => {
     const user = localStorage.getItem("userDetail");
-    console.log("drfdtftfyfgyhftgytgfygf", user);
+   
     if (user) {
       setUser(JSON.parse(user));
-      // if (JSON.parse(user)?.id === "6450e9bef4d2cc08c2ec0431") {
-      //   router.push("/festaevent");
-      // } else {
-      router.push("/");
-      // }
     } else {
       if (router.route !== "/login" && router.route !== "/signup") {
         router.push("/login");
