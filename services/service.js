@@ -39,41 +39,34 @@ function Api(method, url, data, router) {
 }
 
 function ApiFormData(method, url, data, router) {
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     let token = "";
     if (typeof window !== "undefined") {
       token = localStorage?.getItem("token") || "";
     }
-    console.log(token);
+
     axios({
       method,
       url: ConstantsUrl + url,
       data,
       headers: {
         Authorization: `jwt ${token}`,
-        "Content-Type": "multipart/form-data",
+        // ❌ Remove manual content-type
+        // Axios automatically sets the correct multipart boundary
       },
-    }).then(
-      (res) => {
-        resolve(res.data);
-      },
-      (err) => {
-        console.log(err);
-        if (err.response) {
-          if (err?.response?.status === 401) {
-            if (typeof window !== "undefined") {
-              localStorage.removeItem("userDetail");
-              router.push("/");
-            }
-          }
-          reject(err.response.data);
-        } else {
-          reject(err);
+    })
+      .then((res) => resolve(res.data))
+      .catch((err) => {
+        console.log("Error:", err);
+        if (err?.response?.status === 401) {
+          localStorage.removeItem("userDetail");
+          router.push("/");
         }
-      }
-    );
+        reject(err?.response?.data || err);
+      });
   });
 }
+
 
 const timeSince = (date) => {
   date = new Date(date);

@@ -65,7 +65,7 @@ const Navbar = ({ setOpenTab, openTab }) => {
               />
               <div className="text-white leading-tight">
                 <p className="font-semibold text-base">Construction</p>
-                <p className="text-sm text-yellow-100">Admin</p>
+                <p className="text-sm text-yellow-100">{user?.type}</p>
               </div>
 
               {/* Logout Button */}

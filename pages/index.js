@@ -69,11 +69,11 @@ function Home(props) {
     },
   ]);
 
-  useEffect(() => {
-    TopSoldProduct();
-    dashboarddetails();
-    getLowStockProduct();
-  }, []);
+  // useEffect(() => {
+  //   TopSoldProduct();
+  //   dashboarddetails();
+  //   getLowStockProduct();
+  // }, []);
 
   const dashboarddetails = async () => {
     props.loader(true);
@@ -119,7 +119,7 @@ function Home(props) {
         }
       );
     };
-    getMonthlySales();
+    // getMonthlySales();
   }, [selectedYear]);
 
   const TopSoldProduct = (page = 1, limit = 8) => {
@@ -199,9 +199,9 @@ function Home(props) {
           <div className="relative z-10 flex justify-between items-center">
             <div>
               <div className="flex items-center mb-2">
-                <div className="w-1.5 h-12 bg-[#FE4F01] rounded-full mr-4"></div>
+                <div className="w-1.5 h-12 bg-yellow-600 rounded-full mr-4"></div>
                 <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gray-900">
-                  Analytics <span className="text-[#FE4F01]">Hub</span>
+                  Analytics <span className="text-yellow-600">Hub</span>
                 </h1>
               </div>
               <p className="text-gray-600 text-lg font-medium">
@@ -210,9 +210,9 @@ function Home(props) {
             </div>
             <div className="hidden md:flex items-center space-x-4">
               <div className="bg-gray-100 rounded-2xl px-6 py-3 border border-gray-200">
-                <div className="text-[#FE4F01] font-bold text-sm">LIVE STATUS</div>
+                <div className="text-yellow-600 font-bold text-sm">LIVE STATUS</div>
                 <div className="flex items-center mt-1">
-                  <div className="w-2 h-2 bg-[#127300] rounded-full mr-2"></div>
+                  <div className="w-2 h-2 bg-yellow-600 rounded-full mr-2"></div>
                   <span className="text-gray-700 text-sm">All Systems Active</span>
                 </div>
               </div>
@@ -273,7 +273,7 @@ function Home(props) {
                       </option>
                     ))}
                   </select>
-                  <div className="flex  bg-[#FE4F01] rounded-lg">
+                  <div className="flex  bg-yellow-600 rounded-lg">
                     <button className=" text-white px-4 py-2 text-sm font-medium">
                       Monthly
                     </button>
@@ -366,7 +366,7 @@ function Home(props) {
 
           {/* Top Products Table */}
           <div className="lg:col-span-2 bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
-            <div className="bg-[#127300] p-6 text-white">
+            <div className="bg-yellow-600 p-6 text-white">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold flex items-center">
@@ -421,7 +421,7 @@ function Home(props) {
           </div>
 
           <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
-            <div className="bg-[#FE4F01] p-6 text-white">
+            <div className="bg-yellow-600 p-6 text-white">
               <h2 className="text-xl font-bold flex items-center">
                 <AlertTriangle className="mr-2" size={24} />
                 Stock Alert

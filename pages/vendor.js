@@ -52,6 +52,7 @@ function vendor(props) {
 
   const getVendor = async () => {
     props.loader(true);
+    
     const params = new URLSearchParams({
       page: currentPage || 1,
       limit: itemsPerPage || 10,

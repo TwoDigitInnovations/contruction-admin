@@ -80,7 +80,7 @@ export default function CarosalSettings({ toaster, loader }) {
 
     return (
 
-        <div className="bg-white shadow-xl shadow-gray-200 rounded-2xl p-2 md:p-4 transition-all duration-300 hover:shadow-2xl">
+        <div className="bg-white shadow-xl shadow-gray-200 rounded-2xl p-2 md:p-4 transition-all duration-300 hover:shadow-2xl mt-6">
             <form className="space-y-6" onSubmit={submit}>
                 {/* Upload Section */}
                 <div className="relative">

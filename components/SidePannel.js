@@ -22,55 +22,55 @@ import { IoIosContact } from 'react-icons/io'
 import { FaCircleQuestion } from "react-icons/fa6";
 import { FaShoppingBag } from "react-icons/fa";
 import { FaUserTie } from "react-icons/fa";
+import { GrOrderedList } from 'react-icons/gr'
 
 const SidePannel = ({ setOpenTab, openTab }) => {
     const [user, setUser] = useContext(userContext)
     const router = useRouter();
-
-    const logOutHandler = () => {
-        localStorage.removeItem("PBuser")
-        localStorage.removeItem("token")
-        setUser({})
-        router.push('/login')
-    }
 
     const menuItems = [
         {
             href: "/",
             title: "Dashbord",
             img: <MdDashboard className='text-3xl' />,
-            access: ["ADMIN", "SELLER"],
+            access: ["ADMIN", "VENDOR"],
         },
         {
-            href: "/add-product",
-            title: "Add Product",
+            href: "/products",
+            title: "Products",
             img: <AiFillProduct className='text-3xl' />,
-            access: ["ADMIN", "SELLER"],
+            access: ["VENDOR"],
         },
         {
             href: "/users",
             title: "Users",
             img: <BiUser className='text-3xl' />,
-            access: ["ADMIN", "SELLER"],
+            access: ["ADMIN"],
         },
 
-        // {
-        //     href: "/products",
-        //     title: "Products",
-        //     img: <AiFillProduct className='text-3xl' />,
-        //     access: ["ADMIN", "SELLER"],
-        // },
+        {
+            href: "/order",
+            title: "Orders",
+            img: <GrOrderedList className='text-3xl' />,
+            access: ["ADMIN"],
+        },
+        {
+            href: "/Sellersorder",
+            title: "Orders",
+            img: <GrOrderedList className='text-3xl' />,
+            access: ["VENDOR"],
+        },
         {
             href: "/queries",
             title: "Queries",
             img: <FaCircleQuestion className='text-3xl' />,
-            access: ["ADMIN", "SELLER"],
+            access: ["ADMIN"],
         },
         {
             href: "/driver",
             title: "Driver",
             img: <FaShoppingBag className='text-3xl' />,
-            access: ["ADMIN", "SELLER"],
+            access: ["ADMIN"],
         },
         {
             href: "/vendor",

@@ -76,7 +76,7 @@ function Settings(props) {
     return (
         <section className="w-full h-full bg-gray-50 py-8 px-6 md:px-6">
             <div className="overflow-y-scroll h-screen scrollbar-hide pb-56">
-                <p className="text-gray-800 font-bold text-3xl md:text-[32px] pb-6">
+                <p className="text-gray-800 font-bold text-3xl md:text-[32px] ">
                     Website Settings
                 </p>
 
