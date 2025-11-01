@@ -31,7 +31,7 @@ function vendor(props) {
   const [itemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
-
+  const [AllImage, setAllImage] = useState({})
 
   useEffect(() => {
     getVendor();
@@ -52,7 +52,7 @@ function vendor(props) {
 
   const getVendor = async () => {
     props.loader(true);
-    
+
     const params = new URLSearchParams({
       page: currentPage || 1,
       limit: itemsPerPage || 10,
@@ -181,6 +181,15 @@ function vendor(props) {
           onClick={() => {
             setviewPopup(true);
             setPopupData(row.original);
+            setAllImage([
+              {
+                label: "Business License", img: row.original.business_license_img, number: row.original.business_license_no
+              },
+              {
+                label: "Tax Registration", img: row.original.tax_reg_img, number: row.original.
+                  tax_reg_no
+              }
+            ]);
           }}
         >
           <span className="mr-2">Details</span>
@@ -432,16 +441,18 @@ function vendor(props) {
                     onSlideChange={() => console.log("slide change")}
                     onSwiper={(swiper) => console.log(swiper)}
                   >
-                    {vendorData?.map((item, i) => (
+                    {AllImage?.map((item, i) => (
                       <SwiperSlide key={i}>
-                        <div className="w-full flex justify-center items-center bg-gray-100 py-4">
+                        <div className="w-full flex flex-col justify-center items-center bg-gray-100 pt-4">
                           <div className="relative rounded-lg overflow-hidden">
                             <img
                               src={item?.img}
-                              alt={`Document ${i + 1}`}
+                              alt={item?.label}
                               className="rounded-lg md:w-80 md:h-64 w-60 h-48 object-cover"
                             />
                           </div>
+                          <p className="mt-2 text-sm text-gray-700">{item?.label}</p>
+                          <p className="mt-2 text-sm text-gray-200 text-center py-2 rounded-md bg-black w-full">NO: {item?.number}</p>
                         </div>
                       </SwiperSlide>
                     ))}

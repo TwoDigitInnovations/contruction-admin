@@ -29,6 +29,7 @@ function Driver(props) {
   const [itemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [AllImage, setAllImage] = useState({})
 
   useEffect(() => {
     getDriver();
@@ -152,6 +153,16 @@ function Driver(props) {
         onClick={() => {
           setViewPopup(true);
           setPopupData(row.original);
+          setAllImage([
+            {
+              label: "Driving License", img: row.original.driving_licence_img
+              , number: row.original.driving_licence_no
+
+            },
+            {
+              label: "Vehicle Document", img: row.original.vehicle_doc_img, number: row.original.vehicle_doc_no
+            }
+          ]);
         }}
         className="h-[38px] w-[100px] bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-700 text-sm font-medium rounded-lg border border-blue-200 hover:shadow-md transition-all duration-300 flex items-center justify-center gap-2"
       >
@@ -338,7 +349,55 @@ function Driver(props) {
                 </div>
               </div>
 
-              {/* Action Buttons */}
+
+              <div className="my-6">
+                <h4 className="text-lg font-semibold text-gray-700 mb-3">Documents</h4>
+                <div className="relative">
+                  <Swiper
+                    navigation={{
+                      nextEl: '.swiper-button-next-custom',
+                      prevEl: '.swiper-button-prev-custom',
+                    }}
+                    pagination={{
+                      clickable: true,
+                      dynamicBullets: true,
+                    }}
+                    modules={[Navigation]}
+                    className="mySwiper rounded-lg overflow-hidden shadow-md"
+                    // onRealIndexChange={(newindex) => setCurrentIndex(newindex.activeIndex)}
+                    onSlideChange={() => console.log("slide change")}
+                    onSwiper={(swiper) => console.log(swiper)}
+                  >
+                    {AllImage?.map((item, i) => (
+                      <SwiperSlide key={i}>
+                        <div className="w-full flex flex-col justify-center items-center bg-gray-100 pt-4">
+                          <div className="relative rounded-lg overflow-hidden">
+                            <img
+                              src={item?.img}
+                              alt={item?.label}
+                              className="rounded-lg md:w-80 md:h-64 w-60 h-48 object-cover"
+                            />
+                          </div>
+                          <p className="mt-2 text-sm text-gray-700">{item?.label}</p>
+                          <p className="mt-2 text-sm text-gray-200 text-center py-2 rounded-md bg-black w-full">NO: {item?.number}</p>
+                        </div>
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+
+                  {/* Custom navigation buttons */}
+                  <div className="swiper-button-prev-custom absolute left-2 top-1/2 z-10 -translate-y-1/2 bg-white rounded-full p-2 shadow-md cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </div>
+                  <div className="swiper-button-next-custom absolute right-2 top-1/2 z-10 -translate-y-1/2 bg-white rounded-full p-2 shadow-md cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
               <div className="mt-6 flex justify-center gap-4">
                 {popupData?.verified !== "VERIFIED" && (
                   <button
