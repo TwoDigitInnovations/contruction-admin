@@ -16,6 +16,7 @@ export default function App({ Component, pageProps }) {
     message: "",
   });
   const router = useRouter();
+  
   useEffect(() => {
     setToast(toast);
     if (!!toast.message) {

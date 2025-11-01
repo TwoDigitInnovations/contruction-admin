@@ -49,12 +49,12 @@ function products(props) {
       page: currentPage || 1,
       limit: itemsPerPage || 10,
     });
-    Api("get", `getProducts?${params.toString()}`, "", router).then(
+    Api("get", `getProductByVendor?${params.toString()}`, "", router).then(
       (res) => {
         props.loader(false)
         const data = res?.data
         if (data) {
-          const AllProducts = data?.products || [];
+          const AllProducts = data?.product || [];
           const total = data?.total;
           const page = data?.page;
           const pages = data?.totalPages
@@ -279,7 +279,9 @@ function products(props) {
               disablePagination={true}
               showPagination={false}
             />
-          )}
+          ) 
+          
+          }
 
 
           <div className="mt-4 mb-4">
